@@ -1,5 +1,6 @@
 package ru.netology.test;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -15,23 +16,14 @@ import static io.restassured.RestAssured.given;
 public class APITest {
     @BeforeAll
     static void setup() {
-        given()
-                .spec(APIHelper.requestSpecification)
-                .body(DataHelper.getValidUser())
-                .when()
-                .post("/auth")
-                .then()
-                .spec(APIHelper.responseSpecificationWithoutContentType);
-
-        given()
-                .spec(APIHelper.requestSpecification)
-                .body(APIHelper.verificationWithValidUser())
-                .when()
-                .post("/auth/verification")
-                .then()
-                .spec(APIHelper.responseSpecification);
+        APIHelper.login();
+        APIHelper.verify();
     }
 
+    @AfterAll
+    static void clearDB() {
+        SQLHelper.clearAuthCodesAndCardTransaction();
+    }
     @Test
     void showCardBalance() {
         List<APIHelper.CardInfo> cardsInfo = given()
